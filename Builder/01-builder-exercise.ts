@@ -13,36 +13,72 @@
 
 import { COLORS } from './helpers/colors.ts';
 
-//! Tarea: crear un QueryBuilder para construir consultas SQL
+// Create new interface for Query
+interface Query {
+    getTable(): string;
+    getFields(): string[];
+    getConditions(): string[];
+    getOrderByField(): string;
+    getLimitField(): number;
+    setTable(table: string): void;
+    setFields(fields: string[]): void;
+    setConditions(conditions: string[]): void;
+    setOrderByField(orderByField: string): void;
+    setLimitField(limitField: number): void;
+    showQuery(): string;
+}
+
 /**
- * Debe de tener los siguientes métodos:
- * - constructor(table: string)
- * - select(fields: string[]): QueryBuilder -- si no se pasa ningún campo, se seleccionan todos con el (*)
- * - where(condition: string): QueryBuilder - opcional
- * - orderBy(field: string, order: string): QueryBuilder - opcional
- * - limit(limit: number): QueryBuilder - opcional
- * - execute(): string - retorna la consulta SQL
- * 
- ** Ejemplo de uso:
-  const usersQuery = new QueryBuilder("users") // users es el nombre de la tabla
-    .select("id", "name", "email")
-    .where("age > 18")
-    .where("country = 'Cri'")
-    .orderBy("name", "ASC")
-    .limit(10)
-    .execute();
-
-  console.log('Consulta: ', usersQuery);
-  // Select id, name, email from users where age > 18 and country = 'Cri' order by name ASC limit 10;
+ * Class Query
  */
-class Query {
-    public table: string;
-    public fields: string[] = []; // Initialize fields
-    public conditions: string[] = []; // Initialize conditions
-    public orderByField: string;
-    public limitField: number;
+class Query implements Query {
+    private table: string;
+    private fields: string[] = []; // Initialize fields
+    private conditions: string[] = []; // Initialize conditions
+    private orderByField: string;
+    private limitField: number;
 
-    showQuery(): string {
+    public getTable(): string {
+        return this.table;
+    }
+
+    public getFields(): string[] {
+        return this.fields;
+    }
+
+    public getConditions(): string[] {
+        return this.conditions;
+    }
+
+    public getOrderByField(): string {
+        return this.orderByField;
+    }
+
+    public getLimitField(): number {
+        return this.limitField;
+    }
+
+    public setTable(table: string): void {
+        this.table = table;
+    }
+
+    public setFields(fields: string[]): void {
+        this.fields = fields;
+    }
+
+    public setConditions(conditions: string[]): void {
+        this.conditions = conditions;
+    }
+
+    public setOrderByField(orderByField: string): void {
+        this.orderByField = orderByField;
+    }
+
+    public setLimitField(limitField: number): void {
+        this.limitField = limitField;
+    }
+
+    public showQuery(): string {
         let query = `Select ${this.fields.join(", ")} from ${this.table || "undefined"}`;
 
         if (this.conditions.length > 0) {
@@ -68,27 +104,27 @@ class QueryBuilder {
         this.query = new Query();
     }
 
-    select(...fields: string[]): QueryBuilder {
-        this.query.fields = fields;
+    public select(...fields: string[]): QueryBuilder {
+        this.query.setFields(fields);
         return this;
     }
 
-    where(condition: string): QueryBuilder {
-        this.query.conditions.push(condition);
+    public where(condition: string): QueryBuilder {
+        this.query.getConditions().push(condition);
         return this;
     }    
 
-    orderBy(field: string, order: string): QueryBuilder {
-        this.query.orderByField = `${field} ${order}`;
+    public orderBy(field: string, order: string): QueryBuilder {
+        this.query.setOrderByField(`${field} ${order}`);
         return this;
     }
 
-    limit(limit: number): QueryBuilder {
-        this.query.limitField = limit;
+    public limit(limit: number): QueryBuilder {
+        this.query.setLimitField(limit);
         return this;
     }
 
-    execute(): Query {
+    public execute(): Query {
         return this.query;
     }
 }
@@ -98,16 +134,28 @@ class QueryBuilder {
  * Create a basic and advanced computer using the builder pattern
  */
 function main() {    
-    const queryBuilder = new QueryBuilder();    
-    queryBuilder.select("id", "name", "email")    
+    // First query for users
+    const queryBuilderUsers = new QueryBuilder();    
+    queryBuilderUsers.select("id", "name", "email")    
         .where("age > 18")    
         .where("country = 'Cri'")    
         .orderBy("name", "ASC")    
         .limit(10);  
     
     console.log('%cConsulta:', COLORS.red);
-    const query = queryBuilder.execute();
+    const query = queryBuilderUsers.execute();
     console.log(query.showQuery());
+
+    // Second query for cars
+    const queryBuilderCars = new QueryBuilder();    
+    queryBuilderCars.select("id", "name", "brand")    
+        .where("price > 10000")    
+        .where("year > 2000")    
+        .orderBy("name", "ASC");  
+    
+    console.log('%cConsulta:', COLORS.red);
+    const query2 = queryBuilderCars.execute();
+    console.log(query2.showQuery());
 }
 
 // Call main function
