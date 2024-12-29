@@ -13,25 +13,10 @@
 
 import { COLORS } from './helpers/colors.ts';
 
-// Create new interface for Query
-interface Query {
-    getTable(): string;
-    getFields(): string[];
-    getConditions(): string[];
-    getOrderByField(): string;
-    getLimitField(): number;
-    setTable(table: string): void;
-    setFields(fields: string[]): void;
-    setConditions(conditions: string[]): void;
-    setOrderByField(orderByField: string): void;
-    setLimitField(limitField: number): void;
-    showQuery(): string;
-}
-
 /**
  * Class Query
  */
-class Query implements Query {
+class Query {
     private table: string;
     private fields: string[] = []; // Initialize fields
     private conditions: string[] = []; // Initialize conditions
@@ -97,29 +82,41 @@ class Query implements Query {
     }
 }
 
-class QueryBuilder {
+/**
+ * Interface QueryBuilder
+ * Define the methods of the QueryBuilder class
+ */
+interface IQueryBuilder {
+    select(...fields: string[]): IQueryBuilder;
+    where(condition: string): IQueryBuilder;
+    orderBy(field: string, order: string): IQueryBuilder;
+    limit(limit: number): IQueryBuilder;
+    execute(): Query;
+}
+
+class QueryBuilder implements IQueryBuilder {
     private query: Query;
 
     constructor() {
         this.query = new Query();
     }
 
-    public select(...fields: string[]): QueryBuilder {
+    public select(...fields: string[]): IQueryBuilder {
         this.query.setFields(fields);
         return this;
     }
 
-    public where(condition: string): QueryBuilder {
+    public where(condition: string): IQueryBuilder {
         this.query.getConditions().push(condition);
         return this;
     }    
 
-    public orderBy(field: string, order: string): QueryBuilder {
+    public orderBy(field: string, order: string): IQueryBuilder {
         this.query.setOrderByField(`${field} ${order}`);
         return this;
     }
 
-    public limit(limit: number): QueryBuilder {
+    public limit(limit: number): IQueryBuilder {
         this.query.setLimitField(limit);
         return this;
     }
@@ -130,10 +127,25 @@ class QueryBuilder {
 }
 
 /**
+ * The director is only responsible for executing the building
+*/
+class Director {
+    private builder: QueryBuilder;
+
+    constructor(builder: QueryBuilder) {
+        this.builder = builder;
+    }
+
+    public build(): Query {
+        return this.builder.execute();
+    }
+} 
+
+/**
  * Main function
  * Create a basic and advanced computer using the builder pattern
  */
-function main() {    
+function main() {   
     // First query for users
     const queryBuilderUsers = new QueryBuilder();    
     queryBuilderUsers.select("id", "name", "email")    
@@ -141,21 +153,22 @@ function main() {
         .where("country = 'Cri'")    
         .orderBy("name", "ASC")    
         .limit(10);  
-    
-    console.log('%cConsulta:', COLORS.red);
-    const query = queryBuilderUsers.execute();
-    console.log(query.showQuery());
 
-    // Second query for cars
+    console.log('%cConsulta:', COLORS.yellow);
+    const director = new Director(queryBuilderUsers);
+    const queryBuilder = director.build();
+    console.log(queryBuilder.showQuery());
+
+    console.log('%cConsulta:', COLORS.yellow);
     const queryBuilderCars = new QueryBuilder();    
-    queryBuilderCars.select("id", "name", "brand")    
-        .where("price > 10000")    
-        .where("year > 2000")    
-        .orderBy("name", "ASC");  
-    
-    console.log('%cConsulta:', COLORS.red);
-    const query2 = queryBuilderCars.execute();
-    console.log(query2.showQuery());
+    queryBuilderCars.select("id", "name", "brand")
+        .where("price > 10000")
+        .where("year > 2000")
+        .orderBy("name", "ASC");
+        
+    const director2 = new Director(queryBuilderCars);
+    const queryBuilder2 = director2.build();
+    console.log(queryBuilder2.showQuery());
 }
 
 // Call main function
