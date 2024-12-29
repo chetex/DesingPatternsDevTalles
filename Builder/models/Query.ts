@@ -1,9 +1,9 @@
 export class Query {
-    private table: string;
+    private table: string = "";
     private fields: string[] = [];
     private conditions: string[] = [];
-    private orderByField: string;
-    private limitField: number;
+    private orderByField: string = "";
+    private limitField: number = 0;
 
     public setTable(table: string): void {
         this.table = table;

@@ -2,8 +2,7 @@ import { QueryBuilder } from "./builders/QueryBuilder.ts";
 import { Director } from "./builders/Director.ts";
 
 function main() {
-    const builder = new QueryBuilder();
-    const director = new Director(builder);
+    const director = new Director(new QueryBuilder());
 
     console.log("Consulta básica:");
     const basicQuery = director.constructBasicQuery();
