@@ -4,11 +4,17 @@ import { RestaurantVeggiFactory } from "./Factory/RestaurantVeggiFactory.ts";
 import { BurgerTypeEnum } from "./enum/BurgerTypeEnum.ts";
 
 // Create Global map with RestaurantFactory and BurgerTypeEnum
-const restaurantMap = new Map<BurgerTypeEnum, RestaurantFactory>();
+const burguerTypeRestaurantMap = new Map<BurgerTypeEnum, RestaurantFactory>();
 
 function init() {
-    restaurantMap.set(BurgerTypeEnum.Hard, new RestaurantHardFactory());
-    restaurantMap.set(BurgerTypeEnum.Veggi, new RestaurantVeggiFactory());
+    burguerTypeRestaurantMap.set(
+        BurgerTypeEnum.Hard,
+        new RestaurantHardFactory(),
+    );
+    burguerTypeRestaurantMap.set(
+        BurgerTypeEnum.Veggi,
+        new RestaurantVeggiFactory(),
+    );
 }
 
 function main() {
@@ -17,7 +23,7 @@ function main() {
     );
 
     // Verificar si enumKey y restaurant son válidos
-    const restaurant = restaurantMap.get(
+    const restaurant = burguerTypeRestaurantMap.get(
         BurgerTypeEnum[burgerType as keyof typeof BurgerTypeEnum],
     );
     if (!restaurant) {
